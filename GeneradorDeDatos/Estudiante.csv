@@ -1,0 +1,11 @@
+nombre,apellido,fecha_nacimiento,direccion,telefono,correo,grado
+Maria,Gonzalez,2005-03-15,Calle Principal 123 Madrid,+34 912345678,maria.gonzalez@email.com,10mo Grado
+Carlos,Rodriguez,2006-07-22,Avenida Libertad 45Barcelona,+34 933456789,carlos.rodriguez@email.com,9no Grado
+Laura,Martinez,2004-11-08,Plaza Central 67Valencia,+34 961234567,laura.martinez@email.com,11vo Grado
+Javier,Lopez,2005-05-30,Calle Secundaria 89Sevilla,+34 955678901,javier.lopez@email.com,10mo Grado
+Ana,Fernandez,2006-01-14,Avenida Central 12Zaragoza,+34 976543210,ana.fernandez@email.com,9no Grado
+David,Sanchez,2004-09-18,Calle Nueva 34 Málaga,+34 952345678,david.sanchez@email.com,11vo Grado
+Elena,Garcia,2005-12-03,Paseo del Parque 56 Murcia,+34 968765432,elena.garcia@email.com,10mo Grado
+Sergio,Perez,2006-04-27,Avenida Norte 78 Palma,+34 971234567,sergio.perez@email.com,9no Grado
+Isabel,Ruiz,2004-08-11,Calle Este 90 Las Palmas,+34 928345678,isabel.ruiz@email.com,11vo Grado
+Pablo,Diaz,2005-02-19,Avenida Sur 23Bilbao,+34 944567890,pablo.diaz@email.com,10mo Grado

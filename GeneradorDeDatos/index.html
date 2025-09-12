@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Generador CSV - Centro Educativo (Guatemala)</title>
+<style>
+:root{
+  --primary:#2c3e50; --secondary:#3498db; --light:#ecf0f1; --success:#27ae60;
+}
+*{box-sizing:border-box;font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;}
+body{background:#f5f7fa;color:#222;margin:0}
+.container{max-width:1200px;margin:20px auto;padding:18px}
+header{background:var(--primary);color:#fff;padding:18px;border-radius:8px}
+h1{margin:0;font-size:1.6rem}
+.subtitle{opacity:.9;margin-top:6px;font-size:.95rem}
+.card{background:#fff;padding:18px;border-radius:8px;margin-top:14px;box-shadow:0 6px 14px rgba(0,0,0,.06)}
+.card-title{font-weight:700;color:var(--primary);margin-bottom:10px}
+.form-group{margin-bottom:12px}
+label{display:block;margin-bottom:6px;font-weight:600}
+input[type="number"], select{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px}
+.btn{background:var(--secondary);color:#fff;padding:10px 12px;border:0;border-radius:6px;cursor:pointer;font-weight:700}
+.btn-generate{background:var(--success);width:100%;padding:12px}
+.progress-bar{height:26px;background:var(--light);border-radius:6px;overflow:hidden;margin-top:8px}
+.progress{height:100%;background:var(--secondary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;transition:width .2s}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px}
+.result-card{background:var(--light);padding:12px;border-radius:6px;text-align:center}
+.downloads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-top:12px}
+.download-card{background:var(--light);padding:10px;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
+.small{font-size:.85rem;color:#555}
+pre.sqlPreview{max-height:220px;overflow:auto;background:#0b1220;color:#dfeffb;padding:10px;border-radius:6px;font-size:.85rem;white-space:pre-wrap}
+@media(max-width:768px){.result-grid,.downloads-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Generador CSV - Centro Educativo (Guatemala)</h1>
+    <div class="subtitle">Genera CSV listos para importar (cada archivo por tabla). Estructura ajustada a tus INSERTS.</div>
+  </header>
+
+  <div class="card">
+    <div class="card-title">Configuración</div>
+    <div class="form-group">
+      <label for="estudiantes">Número de Estudiantes (mínimo 5000)</label>
+      <input id="estudiantes" type="number" min="5000" value="5000" />
+    </div>
+    <div class="form-group">
+      <label for="ventas">Número de Ventas / Detalles (mínimo 100000)</label>
+      <input id="ventas" type="number" min="100000" value="100000" />
+    </div>
+    <div class="form-group">
+      <label>Rango de fechas (últimos 5 años)</label>
+      <div id="dateRangeInfo" class="small"></div>
+    </div>
+    <button id="generateBtn" class="btn btn-generate">Generar CSV</button>
+  </div>
+
+  <div id="progressCard" class="card" style="display:none;">
+    <div class="card-title">Progreso</div>
+    <div class="small" id="currentTable">Preparando...</div>
+    <div class="progress-bar"><div id="progressBar" class="progress" style="width:0%">0%</div></div>
+    <div id="currentAction" class="small" style="margin-top:8px">Inicializando...</div>
+  </div>
+
+  <div id="resultCard" class="card" style="display:none;">
+    <div class="card-title">Resultados</div>
+    <div class="result-grid" id="statsGrid">
+      <div class="result-card"><div id="estudiantesCount" class="small">0</div><div class="small">Estudiantes</div></div>
+      <div class="result-card"><div id="profesoresCount" class="small">0</div><div class="small">Profesores</div></div>
+      <div class="result-card"><div id="asignaturasCount" class="small">0</div><div class="small">Asignaturas</div></div>
+      <div class="result-card"><div id="clasesCount" class="small">0</div><div class="small">Clases</div></div>
+      <div class="result-card"><div id="evaluacionesCount" class="small">0</div><div class="small">Evaluaciones</div></div>
+      <div class="result-card"><div id="productosCount" class="small">0</div><div class="small">Productos</div></div>
+      <div class="result-card"><div id="facturasCount" class="small">0</div><div class="small">Facturas</div></div>
+      <div class="result-card"><div id="detallesCount" class="small">0</div><div class="small">Detalles</div></div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="card-title">Archivos CSV generados (descarga individual)</div>
+      <div id="downloadsGrid" class="downloads-grid"></div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="card-title">Vista previa (primeros 2000 caracteres por archivo)</div>
+      <div id="previewContainer"></div>
+    </div>
+  </div>
+
+  <footer style="text-align:center;margin-top:18px;color:#666">Generador CSV • Estructura lista para INSERTS en SQL Server</footer>
+</div>
+
+<script>
+(() => {
+  // Fecha "actual" y rango últimos 5 años
+  const today = new Date();
+  const fiveYearsAgo = new Date(today); fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear()-5);
+  const minDateISO = fiveYearsAgo.toISOString().slice(0,10);
+  const maxDateISO = today.toISOString().slice(0,10);
+  document.getElementById('dateRangeInfo').textContent = `Fechas aleatorias entre ${minDateISO} y ${maxDateISO}`;
+
+  // DOM
+  const generateBtn = document.getElementById('generateBtn');
+  const progressCard = document.getElementById('progressCard');
+  const resultCard = document.getElementById('resultCard');
+  const progressBar = document.getElementById('progressBar');
+  const currentTable = document.getElementById('currentTable');
+  const currentAction = document.getElementById('currentAction');
+  const downloadsGrid = document.getElementById('downloadsGrid');
+  const previewContainer = document.getElementById('previewContainer');
+
+  // contadores
+  const estudiantesCountEl = document.getElementById('estudiantesCount');
+  const profesoresCountEl = document.getElementById('profesoresCount');
+  const asignaturasCountEl = document.getElementById('asignaturasCount');
+  const clasesCountEl = document.getElementById('clasesCount');
+  const evaluacionesCountEl = document.getElementById('evaluacionesCount');
+  const productosCountEl = document.getElementById('productosCount');
+  const facturasCountEl = document.getElementById('facturasCount');
+  const detallesCountEl = document.getElementById('detallesCount');
+
+  // semillas (Guatemala)
+  const nombres = ['Juan','María','Pedro','Ana','Luis','Carmen','José','Rosa','Carlos','Sofía','Miguel','Elena','Jorge','Isabel','Francisco','Laura','Diego','Patricia','Antonio','Teresa','Ricardo','Verónica','Hugo','Adriana'];
+  const apellidos = ['García','López','Martínez','Hernández','Pérez','González','Rodríguez','Sánchez','Ramírez','Flores','Torres','Díaz','Vásquez','Castro','Romero','Álvarez','Méndez','Rojas','Moreno','Chávez'];
+  const calles = ['6ta Avenida','7ma Calle','5ta Calle','8va Avenida','Ruta 3','Calzada Roosevelt','Avenida Las Américas','Boulevard Los Próceres','Calzada San Juan','Avenida Reforma'];
+  const colonias = ['Zona 1','Zona 2','Zona 3','Zona 4','Zona 5','Zona 6','Zona 7','Zona 8','Zona 9','Zona 10','Zona 11','Zona 12','Zona 13','Zona 14','Zona 15'];
+  const municipios = ['Guatemala','Mixco','Villa Nueva','Quetzaltenango','Escuintla','San Juan Sacatepéquez','Villa Canales','Amatitlán','Chinautla','Chimaltenango','Petapa','Jutiapa'];
+
+  const asignaturasSeed = [
+    {nombre:'Matemáticas', codigo:'MAT101', descripcion:'Matemáticas básicas y álgebra'},
+    {nombre:'Lenguaje', codigo:'LEN201', descripcion:'Comunicación y lenguaje'},
+    {nombre:'Ciencias Naturales', codigo:'CNT301', descripcion:'Biología, física y química'},
+    {nombre:'Ciencias Sociales', codigo:'CSS401', descripcion:'Historia y geografía'},
+    {nombre:'Educación Física', codigo:'EDF501', descripcion:'Deportes y actividad física'},
+    {nombre:'Artes Plásticas', codigo:'ART601', descripcion:'Expresión artística'},
+    {nombre:'Música', codigo:'MUS701', descripcion:'Educación musical'},
+    {nombre:'Inglés', codigo:'ING801', descripcion:'Idioma inglés'},
+    {nombre:'Informática', codigo:'INF901', descripcion:'Tecnología y computación'},
+    {nombre:'Contabilidad', codigo:'CON021', descripcion:'Principios contables'},
+    {nombre:'Estadística', codigo:'EST121', descripcion:'Estadística descriptiva e inferencial'},
+    {nombre:'Filosofía', codigo:'FIL221', descripcion:'Pensamiento filosófico'}
+  ];
+
+  const grados = ['Primero Primaria','Segundo Primaria','Tercero Primaria','Cuarto Primaria','Quinto Primaria','Sexto Primaria','Primero Básico','Segundo Básico','Tercero Básico','Cuarto Bachillerato','Quinto Bachillerato','Sexto Bachillerato'];
+
+  const tiposEvaluacion = ['Examen Parcial','Examen Final','Tarea','Proyecto','Participación','Quiz'];
+
+  const productosSeed = [
+    {nombre:'Inscripción', descripcion:'Costo de inscripción anual', precio:250.00, tipo:'Inscripción'},
+    {nombre:'Mensualidad', descripcion:'Mensualidad educativa', precio:350.00, tipo:'Mensualidad'},
+    {nombre:'Examen de Admisión', descripcion:'Derecho a examen de admisión', precio:100.00, tipo:'Examen'},
+    {nombre:'Cuaderno', descripcion:'Cuaderno de 100 hojas', precio:25.00, tipo:'Librería'},
+    {nombre:'Lápiz', descripcion:'Lápiz de grafito', precio:2.50, tipo:'Librería'},
+    {nombre:'Bolígrafo', descripcion:'Bolígrafo azul', precio:3.00, tipo:'Librería'},
+    {nombre:'Regla', descripcion:'Regla de 30 cm', precio:8.00, tipo:'Librería'},
+    {nombre:'Uniforme Diario', descripcion:'Uniforme de diario completo', precio:225.00, tipo:'Uniforme'},
+    {nombre:'Uniforme Deporte', descripcion:'Uniforme de educación física', precio:180.00, tipo:'Uniforme'},
+    {nombre:'Texto de Matemáticas', descripcion:'Libro de texto de matemáticas', precio:125.00, tipo:'Libro'},
+    {nombre:'Texto de Lenguaje', descripcion:'Libro de texto de lenguaje', precio:120.00, tipo:'Libro'},
+    {nombre:'Texto de Ciencias', descripcion:'Libro de texto de ciencias', precio:130.00, tipo:'Libro'}
+  ];
+
+  // helpers
+  const randInt = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+  const pick = arr => arr[randInt(0,arr.length-1)];
+  function sanitize(str){
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .normalize('NFKD').replace(/[\u0300-\u036f]/g,'') // quitar tildes combinantes
+      .replace(/["'\r\n]/g,' ') // quitar comillas y saltos de línea
+      .replace(/,/g,'') // quitar comas internas
+      .replace(/[^\x00-\x7F]/g,'') // quitar no-ascii
+      .replace(/\s+/g,' ').trim();
+  }
+  function isoDateBetween(startISO, endISO){
+    const start = new Date(startISO+'T00:00:00').getTime();
+    const end = new Date(endISO+'T00:00:00').getTime();
+    const t = randInt(start, end);
+    return new Date(t).toISOString().slice(0,10);
+  }
+  function generarDireccion(){
+    return sanitize(`${pick(calles)} ${randInt(1,300)} ${pick(colonias)} ${pick(municipios)}`);
+  }
+  function generarTelefono(){
+    let s = '+502 ';
+    for(let i=0;i<7;i++) s += randInt(0,9);
+    return s;
+  }
+  function generarCorreo(nombre, apellido, idx){
+    const dominios = ['gmail.com','yahoo.com','hotmail.com','outlook.com','miempresa.com.gt'];
+    const dominio = pick(dominios);
+    const base = `${nombre.toLowerCase()}.${apellido.toLowerCase()}`;
+    return sanitize(`${base}${idx?idx:''}@${dominio}`);
+  }
+  function generarHorario(){
+    const dias = ['Lunes','Martes','Miercoles','Jueves','Viernes'];
+    const horas = ['7:00-8:00','8:00-9:00','9:00-10:00','10:00-11:00','11:00-12:00','14:00-15:00','15:00-16:00','16:00-17:00'];
+    return `${pick(dias)} ${pick(horas)}`;
+  }
+
+  // convert row array to CSV line WITHOUT quotes (fields already sanitized and commas removed)
+  function toCsvLine(arr){
+    return arr.map(f => {
+      if (f === null || f === undefined) return '';
+      // numeric types keep numeric formatting (if number), else string sanitized
+      if (typeof f === 'number') return String(f);
+      return sanitize(String(f));
+    }).join(',');
+  }
+
+  // generate
+  generateBtn.addEventListener('click', async () => {
+    const numEstudiantes = Math.max(5000, parseInt(document.getElementById('estudiantes').value,10) || 5000);
+    const numVentas = Math.max(100000, parseInt(document.getElementById('ventas').value,10) || 100000);
+
+    // UI reset
+    progressCard.style.display='block';
+    resultCard.style.display='none';
+    downloadsGrid.innerHTML='';
+    previewContainer.innerHTML='';
+    updateProgress(1, 'Iniciando...');
+
+    // data holders: we'll build CSV text in chunks to avoid reallocation gigante: array of lines per table then join once
+    const csv = {
+      Estudiante: [], Profesor: [], Asignatura: [], Clase: [], TipoEvaluacion: [],
+      Evaluacion: [], Producto: [], Factura: [], DetalleFactura: []
+    };
+
+    // headers in exact order per INSERTS provided
+    csv.Estudiante.push('nombre,apellido,fecha_nacimiento,direccion,telefono,correo,grado');
+    csv.Profesor.push('nombre,apellido,fecha_nacimiento,direccion,telefono,correo');
+    csv.Asignatura.push('nombre,codigo,descripcion');
+    csv.Clase.push('nombre,codigo,horario,id_asignatura,id_profesor');
+    csv.TipoEvaluacion.push('descripcion');
+    csv.Evaluacion.push('id_estudiante,id_clase,id_tipo_evaluacion,nota,fecha');
+    csv.Producto.push('nombre,descripcion,precio,tipo');
+    csv.Factura.push('id_estudiante,fecha,total');
+    csv.DetalleFactura.push('id_factura,id_producto,cantidad,precio_unitario');
+
+    // 1) Profesores (50)
+    currentTable.textContent = 'Profesor';
+    updateProgress(5, 'Generando profesores...');
+    const numProfesores = 50;
+    for(let i=1;i<=numProfesores;i++){
+      const nombre = pick(nombres);
+      const apellido = pick(apellidos);
+      const fecha = isoDateBetween('1960-01-01','1995-12-31');
+      const direccion = generarDireccion();
+      const telefono = generarTelefono();
+      const correo = generarCorreo(nombre, apellido, i);
+      csv.Profesor.push(toCsvLine([nombre, apellido, fecha, direccion, telefono, correo]));
+    }
+    profesoresCountEl.textContent = numProfesores.toLocaleString();
+    await tick();
+
+    // 2) Asignaturas
+    currentTable.textContent = 'Asignatura';
+    updateProgress(10, 'Generando asignaturas...');
+    for(const a of asignaturasSeed){
+      csv.Asignatura.push(toCsvLine([a.nombre, a.codigo, a.descripcion]));
+    }
+    asignaturasCountEl.textContent = asignaturasSeed.length.toLocaleString();
+    await tick();
+
+    // 3) TipoEvaluacion
+    currentTable.textContent = 'TipoEvaluacion';
+    updateProgress(12, 'Generando tipos de evaluación...');
+    for(const t of tiposEvaluacion) csv.TipoEvaluacion.push(toCsvLine([t]));
+    await tick();
+
+    // 4) Producto
+    currentTable.textContent = 'Producto';
+    updateProgress(14, 'Generando productos...');
+    for(const p of productosSeed){
+      csv.Producto.push(toCsvLine([p.nombre, p.descripcion, p.precio.toFixed(2), p.tipo]));
+    }
+    productosCountEl.textContent = productosSeed.length.toLocaleString();
+    await tick();
+
+    // 5) Estudiantes (lote)
+    currentTable.textContent = 'Estudiante';
+    updateProgress(18, 'Generando estudiantes (por lotes)...');
+    const batchSize = 1000;
+    let estudiantesGen = 0;
+    for(let start=1; start<=numEstudiantes; start+=batchSize){
+      const end = Math.min(start+batchSize-1, numEstudiantes);
+      for(let i=start;i<=end;i++){
+        const nombre = pick(nombres);
+        const apellido = pick(apellidos);
+        const fechaNacimiento = isoDateBetween('2000-01-01','2015-12-31');
+        const direccion = generarDireccion();
+        const telefono = generarTelefono();
+        const correo = generarCorreo(nombre, apellido, i);
+        const grado = pick(grados);
+        csv.Estudiante.push(toCsvLine([nombre, apellido, fechaNacimiento, direccion, telefono, correo, grado]));
+        estudiantesGen++;
+      }
+      estudiantesCountEl.textContent = estudiantesGen.toLocaleString();
+      updateProgress(18 + Math.min(22, (estudiantesGen/numEstudiantes)*22), `Estudiantes generados: ${estudiantesGen}/${numEstudiantes}`);
+      await tick();
+    }
+    updateProgress(40, 'Estudiantes completados');
+
+    // 6) Clases (100)
+    currentTable.textContent = 'Clase';
+    updateProgress(42, 'Generando clases...');
+    const numClases = 100;
+    for(let i=1;i<=numClases;i++){
+      const id_asignatura = randInt(1, asignaturasSeed.length);
+      const id_profesor = randInt(1, numProfesores);
+      const horario = generarHorario();
+      const codigo = `CLS${String(i).padStart(3,'0')}`;
+      const nombre = `${asignaturasSeed[id_asignatura-1].nombre} - ${codigo}`;
+      csv.Clase.push(toCsvLine([nombre, codigo, horario, id_asignatura, id_profesor]));
+    }
+    clasesCountEl.textContent = numClases.toLocaleString();
+    await tick();
+
+    // 7) Evaluaciones: cada estudiante en 4 clases, 5 evaluaciones por clase => ~20 por estudiante
+    currentTable.textContent = 'Evaluacion';
+    updateProgress(46, 'Generando evaluaciones (esto puede generar muchos registros)...');
+    let contadorEvaluaciones = 0;
+    for(let stud=1; stud<=numEstudiantes; stud++){
+      // asignar 4 clases distintas
+      const clasesAsign = [];
+      while(clasesAsign.length < 4){
+        const c = randInt(1, numClases);
+        if (!clasesAsign.includes(c)) clasesAsign.push(c);
+      }
+      for(const id_clase of clasesAsign){
+        for(let e=0;e<5;e++){
+          const id_tipo = randInt(1, tiposEvaluacion.length);
+          const nota = (Math.random()*60 + 40).toFixed(2);
+          const fecha = isoDateBetween(minDateISO, maxDateISO);
+          csv.Evaluacion.push(toCsvLine([stud, id_clase, id_tipo, nota, fecha]));
+          contadorEvaluaciones++;
+        }
+      }
+      if (stud % 500 === 0){
+        updateProgress(46 + Math.min(14, (stud/numEstudiantes)*14), `Evaluaciones generadas: ${contadorEvaluaciones.toLocaleString()}`);
+        await tick();
+      }
+    }
+    evaluacionesCountEl.textContent = contadorEvaluaciones.toLocaleString();
+    await tick();
+
+    // 8) Facturas y DetalleFactura: queremos numVentas detalles
+    currentTable.textContent = 'Factura y DetalleFactura';
+    updateProgress(62, 'Generando facturas y detalles (controlando número de detalles)...');
+    let contadorFacturas = 0;
+    let contadorDetalles = 0;
+    let facturaIdx = 0;
+    const detallesObjetivo = numVentas;
+
+    while(contadorDetalles < detallesObjetivo){
+      facturaIdx++;
+      const id_estudiante = randInt(1, numEstudiantes);
+      const fecha = isoDateBetween(minDateISO, maxDateISO);
+      let total = 0;
+      const numItems = randInt(1,4);
+      for(let it=0; it<numItems && contadorDetalles < detallesObjetivo; it++){
+        const id_producto = randInt(1, productosSeed.length);
+        const cantidad = randInt(1,3);
+        const precio_unitario = productosSeed[id_producto-1].precio;
+        csv.DetalleFactura.push(toCsvLine([facturaIdx, id_producto, cantidad, precio_unitario.toFixed(2)]));
+        total += precio_unitario * cantidad;
+        contadorDetalles++;
+      }
+      csv.Factura.push(toCsvLine([id_estudiante, fecha, total.toFixed(2)]));
+      contadorFacturas++;
+      if (facturaIdx % 1000 === 0){
+        updateProgress(62 + Math.min(38, (contadorDetalles/detallesObjetivo)*38), `Facturas: ${facturaIdx}, Detalles: ${contadorDetalles}`);
+        await tick();
+      }
+    }
+    facturasCountEl.textContent = contadorFacturas.toLocaleString();
+    detallesCountEl.textContent = contadorDetalles.toLocaleString();
+    updateProgress(100, `Generación finalizada — Facturas: ${contadorFacturas}, Detalles: ${contadorDetalles}`);
+
+    // todo generado: crear blobs CSV y botones
+    await tick(100);
+    crearDescargas(csv);
+    resultCard.style.display='block';
+  });
+
+  // small utilities
+  function tick(ms=20){ return new Promise(r => setTimeout(r, ms)); }
+  function updateProgress(pct, action){ progressBar.style.width = Math.max(0,Math.min(100,pct)) + '%'; progressBar.textContent = Math.round(pct) + '%'; document.getElementById('currentAction').textContent = action; document.getElementById('currentTable').textContent = action.split(' ')[0]; }
+
+  function crearDescargas(csvObj){
+    downloadsGrid.innerHTML = '';
+    previewContainer.innerHTML = '';
+
+    // crear blob por tabla y boton
+    for(const key of Object.keys(csvObj)){
+      // skip if only header and no data (but keep header as file if you'd like)
+      if (csvObj[key].length <= 1) continue;
+      const content = csvObj[key].join('\n');
+      const blob = new Blob([content], {type: 'text/csv;charset=utf-8;'});
+      const sizeKB = Math.round(blob.size/1024);
+      const name = key + '.csv';
+
+      const card = document.createElement('div'); card.className='download-card';
+      const info = document.createElement('div'); info.style.flex='1';
+      const title = document.createElement('div'); title.textContent = name; title.style.fontWeight='700';
+      const meta = document.createElement('div'); meta.className='small'; meta.textContent = `${csvObj[key].length-1} registros • ${sizeKB} KB`;
+      info.appendChild(title); info.appendChild(meta);
+
+      const btns = document.createElement('div'); btns.style.display='flex'; btns.style.gap='8px';
+      const dl = document.createElement('button'); dl.className='btn'; dl.textContent='Descargar';
+      dl.addEventListener('click', ()=> {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+      const prev = document.createElement('button'); prev.className='btn'; prev.textContent='Vista previa';
+      prev.addEventListener('click', ()=> {
+        previewContainer.innerHTML = `<h4>${name} — primer contenido</h4><pre class="sqlPreview">${escapeHtml(content.slice(0,2000))}</pre>`;
+        window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+      });
+
+      btns.appendChild(dl); btns.appendChild(prev);
+      card.appendChild(info); card.appendChild(btns);
+      downloadsGrid.appendChild(card);
+    }
+
+    // show small note if nothing generated
+    if (!downloadsGrid.children.length){
+      downloadsGrid.innerHTML = '<div class="small">No se generaron archivos (revisa configuración).</div>';
+    }
+  }
+
+  // escapar para mostrar en pre
+  function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+})();
+</script>
+</body>
+</html>
