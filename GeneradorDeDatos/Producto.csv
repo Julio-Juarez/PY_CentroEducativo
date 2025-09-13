@@ -1,0 +1,13 @@
+nombre,descripcion,precio,tipo
+Inscripcion,Costo de inscripcion anual,250.00,Inscripcion
+Mensualidad,Mensualidad educativa,350.00,Mensualidad
+Examen de Admision,Derecho a examen de admision,100.00,Examen
+Cuaderno,Cuaderno de 100 hojas,25.00,Libreria
+Lapiz,Lapiz de grafito,2.50,Libreria
+Boligrafo,Boligrafo azul,3.00,Libreria
+Regla,Regla de 30 cm,8.00,Libreria
+Uniforme Diario,Uniforme de diario completo,225.00,Uniforme
+Uniforme Deporte,Uniforme de educacion fisica,180.00,Uniforme
+Texto de Matematicas,Libro de texto de matematicas,125.00,Libro
+Texto de Lenguaje,Libro de texto de lenguaje,120.00,Libro
+Texto de Ciencias,Libro de texto de ciencias,130.00,Libro

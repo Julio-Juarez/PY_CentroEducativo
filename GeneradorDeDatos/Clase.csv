@@ -1,0 +1,101 @@
+nombre,codigo,horario,id_asignatura,id_profesor
+Ingles - CLS001,CLS001,Jueves 15:00-16:00,8,8
+Ingles - CLS002,CLS002,Martes 11:00-12:00,8,25
+Informatica - CLS003,CLS003,Lunes 7:00-8:00,9,18
+Musica - CLS004,CLS004,Lunes 8:00-9:00,7,21
+Educacion Fisica - CLS005,CLS005,Jueves 9:00-10:00,5,43
+Ingles - CLS006,CLS006,Miercoles 14:00-15:00,8,16
+Contabilidad - CLS007,CLS007,Miercoles 16:00-17:00,10,26
+Estadistica - CLS008,CLS008,Jueves 14:00-15:00,11,33
+Ingles - CLS009,CLS009,Viernes 10:00-11:00,8,40
+Ciencias Naturales - CLS010,CLS010,Martes 7:00-8:00,3,25
+Informatica - CLS011,CLS011,Miercoles 9:00-10:00,9,20
+Musica - CLS012,CLS012,Jueves 10:00-11:00,7,31
+Lenguaje - CLS013,CLS013,Martes 8:00-9:00,2,9
+Estadistica - CLS014,CLS014,Miercoles 8:00-9:00,11,34
+Musica - CLS015,CLS015,Miercoles 9:00-10:00,7,44
+Ciencias Naturales - CLS016,CLS016,Miercoles 10:00-11:00,3,19
+Musica - CLS017,CLS017,Lunes 8:00-9:00,7,11
+Ciencias Sociales - CLS018,CLS018,Viernes 9:00-10:00,4,1
+Estadistica - CLS019,CLS019,Viernes 16:00-17:00,11,39
+Filosofia - CLS020,CLS020,Lunes 15:00-16:00,12,2
+Artes Plasticas - CLS021,CLS021,Lunes 16:00-17:00,6,7
+Ingles - CLS022,CLS022,Jueves 7:00-8:00,8,11
+Estadistica - CLS023,CLS023,Martes 15:00-16:00,11,49
+Ciencias Sociales - CLS024,CLS024,Viernes 8:00-9:00,4,43
+Educacion Fisica - CLS025,CLS025,Viernes 15:00-16:00,5,6
+Lenguaje - CLS026,CLS026,Lunes 8:00-9:00,2,15
+Artes Plasticas - CLS027,CLS027,Martes 10:00-11:00,6,36
+Estadistica - CLS028,CLS028,Miercoles 10:00-11:00,11,31
+Ingles - CLS029,CLS029,Miercoles 11:00-12:00,8,24
+Contabilidad - CLS030,CLS030,Viernes 15:00-16:00,10,28
+Estadistica - CLS031,CLS031,Viernes 11:00-12:00,11,13
+Estadistica - CLS032,CLS032,Jueves 15:00-16:00,11,13
+Artes Plasticas - CLS033,CLS033,Martes 10:00-11:00,6,11
+Contabilidad - CLS034,CLS034,Miercoles 8:00-9:00,10,33
+Informatica - CLS035,CLS035,Miercoles 7:00-8:00,9,18
+Ciencias Naturales - CLS036,CLS036,Jueves 11:00-12:00,3,33
+Filosofia - CLS037,CLS037,Jueves 8:00-9:00,12,5
+Ciencias Sociales - CLS038,CLS038,Viernes 15:00-16:00,4,36
+Lenguaje - CLS039,CLS039,Jueves 15:00-16:00,2,7
+Lenguaje - CLS040,CLS040,Lunes 8:00-9:00,2,10
+Informatica - CLS041,CLS041,Miercoles 14:00-15:00,9,45
+Estadistica - CLS042,CLS042,Lunes 16:00-17:00,11,50
+Informatica - CLS043,CLS043,Jueves 14:00-15:00,9,28
+Ciencias Naturales - CLS044,CLS044,Jueves 14:00-15:00,3,43
+Informatica - CLS045,CLS045,Miercoles 10:00-11:00,9,42
+Ciencias Naturales - CLS046,CLS046,Viernes 15:00-16:00,3,17
+Informatica - CLS047,CLS047,Miercoles 7:00-8:00,9,11
+Lenguaje - CLS048,CLS048,Martes 9:00-10:00,2,48
+Ingles - CLS049,CLS049,Lunes 14:00-15:00,8,30
+Estadistica - CLS050,CLS050,Martes 9:00-10:00,11,27
+Ciencias Naturales - CLS051,CLS051,Martes 11:00-12:00,3,17
+Contabilidad - CLS052,CLS052,Miercoles 11:00-12:00,10,2
+Artes Plasticas - CLS053,CLS053,Miercoles 7:00-8:00,6,35
+Informatica - CLS054,CLS054,Martes 8:00-9:00,9,19
+Educacion Fisica - CLS055,CLS055,Lunes 11:00-12:00,5,38
+Artes Plasticas - CLS056,CLS056,Lunes 11:00-12:00,6,39
+Educacion Fisica - CLS057,CLS057,Viernes 8:00-9:00,5,23
+Musica - CLS058,CLS058,Martes 14:00-15:00,7,28
+Contabilidad - CLS059,CLS059,Martes 16:00-17:00,10,27
+Lenguaje - CLS060,CLS060,Martes 10:00-11:00,2,29
+Lenguaje - CLS061,CLS061,Lunes 11:00-12:00,2,43
+Lenguaje - CLS062,CLS062,Viernes 14:00-15:00,2,6
+Contabilidad - CLS063,CLS063,Jueves 14:00-15:00,10,8
+Contabilidad - CLS064,CLS064,Lunes 8:00-9:00,10,43
+Informatica - CLS065,CLS065,Viernes 15:00-16:00,9,28
+Estadistica - CLS066,CLS066,Jueves 10:00-11:00,11,10
+Filosofia - CLS067,CLS067,Jueves 8:00-9:00,12,37
+Ingles - CLS068,CLS068,Viernes 7:00-8:00,8,39
+Estadistica - CLS069,CLS069,Jueves 16:00-17:00,11,25
+Informatica - CLS070,CLS070,Lunes 10:00-11:00,9,26
+Informatica - CLS071,CLS071,Lunes 15:00-16:00,9,25
+Ciencias Sociales - CLS072,CLS072,Viernes 10:00-11:00,4,33
+Ingles - CLS073,CLS073,Viernes 14:00-15:00,8,15
+Informatica - CLS074,CLS074,Lunes 11:00-12:00,9,6
+Estadistica - CLS075,CLS075,Viernes 9:00-10:00,11,21
+Lenguaje - CLS076,CLS076,Jueves 7:00-8:00,2,40
+Informatica - CLS077,CLS077,Martes 8:00-9:00,9,48
+Matematicas - CLS078,CLS078,Jueves 16:00-17:00,1,49
+Ciencias Sociales - CLS079,CLS079,Martes 9:00-10:00,4,20
+Ciencias Naturales - CLS080,CLS080,Lunes 8:00-9:00,3,47
+Filosofia - CLS081,CLS081,Miercoles 15:00-16:00,12,30
+Educacion Fisica - CLS082,CLS082,Jueves 8:00-9:00,5,6
+Ciencias Naturales - CLS083,CLS083,Lunes 9:00-10:00,3,27
+Ingles - CLS084,CLS084,Lunes 11:00-12:00,8,17
+Matematicas - CLS085,CLS085,Viernes 8:00-9:00,1,8
+Matematicas - CLS086,CLS086,Jueves 9:00-10:00,1,36
+Informatica - CLS087,CLS087,Viernes 9:00-10:00,9,39
+Educacion Fisica - CLS088,CLS088,Lunes 7:00-8:00,5,31
+Educacion Fisica - CLS089,CLS089,Viernes 16:00-17:00,5,18
+Educacion Fisica - CLS090,CLS090,Jueves 7:00-8:00,5,43
+Informatica - CLS091,CLS091,Lunes 9:00-10:00,9,18
+Musica - CLS092,CLS092,Viernes 11:00-12:00,7,38
+Estadistica - CLS093,CLS093,Lunes 14:00-15:00,11,30
+Artes Plasticas - CLS094,CLS094,Lunes 11:00-12:00,6,26
+Musica - CLS095,CLS095,Martes 7:00-8:00,7,7
+Ingles - CLS096,CLS096,Lunes 8:00-9:00,8,38
+Ingles - CLS097,CLS097,Viernes 9:00-10:00,8,49
+Estadistica - CLS098,CLS098,Martes 8:00-9:00,11,42
+Filosofia - CLS099,CLS099,Martes 11:00-12:00,12,24
+Ciencias Sociales - CLS100,CLS100,Martes 16:00-17:00,4,44
